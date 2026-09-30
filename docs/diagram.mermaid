@@ -1,0 +1,72 @@
+flowchart TD
+
+subgraph group_data["Research data"]
+  node_events["Search and pickup events"]
+  node_earnings["Pickup earnings"]
+  node_trajectories["Taxi trajectories"]
+  node_model_inputs["Sample model inputs"]
+  node_weather["Weather data<br/>[weather.csv]"]
+  node_road_network["Road network"]
+  node_adjacency["Segment adjacency"]
+end
+
+subgraph group_prediction["Pickup prediction"]
+  node_feature_prep["Feature preparation<br/>[gcn_lstm_split.py]"]
+  node_gcn["Spatial graph convolution<br/>[gcn_lstm_split.py]"]
+  node_lstm["Temporal modeling<br/>[gcn_lstm_split.py]"]
+  node_model_training["Model training<br/>[gcn_lstm_split.py]"]
+end
+
+subgraph group_routing["Route optimization"]
+  node_segment_properties["Predicted road properties"]
+  node_route_search["Sequential route search"]
+end
+
+subgraph group_results["Recommendations"]
+  node_route_result["Suggested route<br/>[query_response.csv]"]
+  node_model_summary["Model summary"]
+end
+
+node_driver(("Taxi driver"))
+
+node_model_inputs -->|"loads features"| node_feature_prep
+node_weather -->|"loads weather"| node_feature_prep
+node_adjacency -->|"loads adjacency"| node_feature_prep
+node_feature_prep -->|"prepares inputs"| node_gcn
+node_gcn -->|"feeds spatial features"| node_lstm
+node_lstm -->|"produces predictions"| node_model_training
+node_model_training -->|"records summary"| node_model_summary
+node_driver -->|"requests route"| node_route_search
+node_road_network -->|"loads network"| node_route_search
+node_segment_properties -->|"loads properties"| node_route_search
+node_route_search -->|"writes recommendation"| node_route_result
+node_route_search -->|"returns route"| node_driver
+
+click node_events "https://github.com/informsjoc/2021.0112/tree/main/data/searching_pick_drop"
+click node_earnings "https://github.com/informsjoc/2021.0112/tree/main/data/pick_fair_time"
+click node_trajectories "https://github.com/informsjoc/2021.0112/blob/main/data/sample_trajectory.csv"
+click node_model_inputs "https://github.com/informsjoc/2021.0112/tree/main/data/sample_input"
+click node_weather "https://github.com/informsjoc/2021.0112/blob/main/data/weather.csv"
+click node_road_network "https://github.com/informsjoc/2021.0112/blob/main/data/refined_vertice.csv"
+click node_adjacency "https://github.com/informsjoc/2021.0112/blob/main/data/sample_input/sanhuan_network_adjacent_matrix_symmetric_sparse.npz"
+click node_feature_prep "https://github.com/informsjoc/2021.0112/blob/main/script/gcn_lstm_split.py"
+click node_gcn "https://github.com/informsjoc/2021.0112/blob/main/script/gcn_lstm_split.py"
+click node_lstm "https://github.com/informsjoc/2021.0112/blob/main/script/gcn_lstm_split.py"
+click node_model_training "https://github.com/informsjoc/2021.0112/blob/main/script/gcn_lstm_split.py"
+click node_segment_properties "https://github.com/informsjoc/2021.0112/blob/main/data/network_properties.csv"
+click node_route_search "https://github.com/informsjoc/2021.0112/blob/main/script/path_searching_application.py"
+click node_route_result "https://github.com/informsjoc/2021.0112/blob/main/results/query_response.csv"
+click node_model_summary "https://github.com/informsjoc/2021.0112/blob/main/results/summary_result_of_gcn_lstm_split.csv"
+
+classDef toneNeutral fill:#f8fafc,stroke:#334155,stroke-width:1.5px,color:#0f172a
+classDef toneBlue fill:#dbeafe,stroke:#2563eb,stroke-width:1.5px,color:#172554
+classDef toneAmber fill:#fef3c7,stroke:#d97706,stroke-width:1.5px,color:#78350f
+classDef toneMint fill:#dcfce7,stroke:#16a34a,stroke-width:1.5px,color:#14532d
+classDef toneRose fill:#ffe4e6,stroke:#e11d48,stroke-width:1.5px,color:#881337
+classDef toneIndigo fill:#e0e7ff,stroke:#4f46e5,stroke-width:1.5px,color:#312e81
+classDef toneTeal fill:#ccfbf1,stroke:#0f766e,stroke-width:1.5px,color:#134e4a
+class node_events,node_earnings,node_trajectories,node_model_inputs,node_weather,node_road_network,node_adjacency toneBlue
+class node_feature_prep,node_gcn,node_lstm,node_model_training toneAmber
+class node_segment_properties,node_route_search toneMint
+class node_route_result,node_model_summary toneRose
+class node_driver toneIndigo
